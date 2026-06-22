@@ -1,22 +1,60 @@
 version: '3.9'
 
 services:
-  app:
-    build: .
-    container_name: product-tracker
+  db:
+    image: postgres:15-alpine
+    container_name: pt_postgres
     restart: unless-stopped
-    ports:
-      - "${SERVER_PORT:-9100}:9100"
+    environment:
+      POSTGRES_DB: product_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
     volumes:
-      - db_data:/var/lib/postgresql
-      - uploads:/app/uploads
+      - pg_data:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./backend/db/migration_v2.sql:/docker-entrypoint-initdb.d/02_migration_v2.sql
+      - ./backend/db/migration_v3.sql:/docker-entrypoint-initdb.d/03_migration_v3.sql
+      - ./backend/db/migration_v4.sql:/docker-entrypoint-initdb.d/04_migration_v4.sql
+      - ./backend/db/migration_v5.sql:/docker-entrypoint-initdb.d/05_migration_v5.sql
+      - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/06_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d product_tracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend-java
+      dockerfile: Dockerfile
+    container_name: pt_backend
+    restart: unless-stopped
+    volumes:
+      - uploads_data:/app/uploads
     environment:
       SERVER_PORT: 9100
-      DB_NAME: product_tracker
-      DB_PASS: ${DB_PASS:-1234}
-      APP_JWT_SECRET: ${APP_JWT_SECRET:-change_this_to_a_long_random_secret}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/product_tracker
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-1234}
+      APP_JWT_SECRET: ${JWT_SECRET:-change_this_to_a_long_random_secret}
       APP_JWT_EXPIRATION: 604800000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: pt_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8500}:80"
+    depends_on:
+      - backend
 
 volumes:
-  db_data:
-  uploads:
+  pg_data:
+  uploads_data:
