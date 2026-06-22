@@ -90,6 +90,37 @@ router.delete('/:id', checkRole('super_admin'), async (req, res) => {
   }
 });
 
+// GET /api/users/:id/products
+router.get('/:id/products', async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      'SELECT p.* FROM products p JOIN user_products up ON up.product_id = p.id WHERE up.user_id = $1',
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/users/:id/products — replace all product assignments
+router.put('/:id/products', checkRole('super_admin', 'manager'), async (req, res) => {
+  const { product_ids } = req.body;
+  if (!Array.isArray(product_ids)) return res.status(400).json({ error: 'product_ids harus array' });
+  try {
+    await db.query('DELETE FROM user_products WHERE user_id = $1', [req.params.id]);
+    if (product_ids.length > 0) {
+      const values = product_ids.map((pid, i) => `($1, $${i + 2})`).join(', ');
+      await db.query(`INSERT INTO user_products (user_id, product_id) VALUES ${values}`, [req.params.id, ...product_ids]);
+    }
+    res.json({ message: 'Produk user diperbarui' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/users/roles — get all roles
 router.get('/roles', async (req, res) => {
   try {
