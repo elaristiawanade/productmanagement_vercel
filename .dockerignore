@@ -1,0 +1,9 @@
+frontend/node_modules/
+frontend/dist/
+backend-java/target/
+backend-java/src/main/resources/static/
+backend/node_modules/
+uploads/
+.git/
+.env
+*.log

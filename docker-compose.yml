@@ -1,57 +1,22 @@
 version: '3.9'
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: pt_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: product_tracker
-      POSTGRES_USER: pt_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-pt_secret_2024}
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
-      - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pt_user -d product_tracker"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    build:
-      context: ./backend-java
-      dockerfile: Dockerfile
-    container_name: pt_backend
-    restart: unless-stopped
-    volumes:
-      - uploads_data:/app/uploads
-    environment:
-      SERVER_PORT: 4000
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/product_tracker
-      SPRING_DATASOURCE_USERNAME: pt_user
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-pt_secret_2024}
-      APP_JWT_SECRET: ${JWT_SECRET:-pt_internal_dev_secret_key_2024}
-      APP_JWT_EXPIRATION: 604800000
-      APP_CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
-    depends_on:
-      db:
-        condition: service_healthy
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: /api
-    container_name: pt_frontend
+  app:
+    build: .
+    container_name: product-tracker
     restart: unless-stopped
     ports:
-      - "80:80"
-    depends_on:
-      - backend
+      - "${SERVER_PORT:-9100}:9100"
+    volumes:
+      - db_data:/var/lib/postgresql
+      - uploads:/app/uploads
+    environment:
+      SERVER_PORT: 9100
+      DB_NAME: product_tracker
+      DB_PASS: ${DB_PASS:-1234}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-change_this_to_a_long_random_secret}
+      APP_JWT_EXPIRATION: 604800000
 
 volumes:
-  pg_data:
-  uploads_data:
+  db_data:
+  uploads:
