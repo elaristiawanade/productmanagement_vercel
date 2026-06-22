@@ -1,0 +1,30 @@
+# ── Frontend ───────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+
+# ── Backend (Java) ─────────────────────────────────────
+backend-java/target/
+backend-java/src/main/resources/static/
+
+# ── Backend (Node.js legacy) ───────────────────────────
+backend/node_modules/
+
+# ── Uploads & runtime ─────────────────────────────────
+uploads/
+*.log
+*.log.*
+
+# ── Environment / secrets ─────────────────────────────
+.env
+.env.local
+.env.production
+
+# ── IDE ────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
