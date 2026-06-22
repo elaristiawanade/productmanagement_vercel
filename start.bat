@@ -4,7 +4,7 @@
 ::  Edit variables below before first run.
 :: ============================================================
 
-set SERVER_PORT=9100
+set SERVER_PORT=4000
 set SPRING_DATASOURCE_URL=jdbc:postgresql://127.0.0.1:5432/product_tracker
 set SPRING_DATASOURCE_USERNAME=postgres
 set SPRING_DATASOURCE_PASSWORD=1234
