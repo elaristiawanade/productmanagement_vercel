@@ -6,6 +6,9 @@ set "BACKEND=%ROOT%backend-java"
 set "STATIC=%BACKEND%\src\main\resources\static"
 set "MVN=C:\tools\maven-extracted\apache-maven-3.9.6\bin\mvn.cmd"
 
+:: URL backend yang diakses browser (ganti sesuai server production)
+set "VITE_API_URL=http://10.8.135.133:4000/api"
+
 echo.
 echo ============================================
 echo  Product Tracker - Build for Deployment
