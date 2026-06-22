@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
              r.id AS role_id, r.name AS role_name, r.display_name AS role_display,
              COUNT(DISTINCT bi.id) AS assigned_items,
              COALESCE(
-               json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name))
+               json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name, 'code', p.code, 'color', p.color))
                FILTER (WHERE p.id IS NOT NULL),
                '[]'
              ) AS products
