@@ -1,0 +1,10 @@
+backend/
+backend-java/
+deployment/
+docker-compose.yml
+docker-entrypoint.sh
+Dockerfile
+deploy.sh
+*.md
+frontend/node_modules/
+node_modules/

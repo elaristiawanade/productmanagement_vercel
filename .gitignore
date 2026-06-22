@@ -9,6 +9,9 @@ backend-java/src/main/resources/static/
 # ── Backend (Node.js legacy) ───────────────────────────
 backend/node_modules/
 
+# ── Root (Vercel Node.js API) ──────────────────────────
+node_modules/
+
 # ── Uploads & runtime ─────────────────────────────────
 uploads/
 *.log
